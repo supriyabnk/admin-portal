@@ -2,7 +2,7 @@ function employees(){
  const q=ui.q.toLowerCase(),list=S.emps.filter(e=>[e.name,e.user,e.pos,e.email].join(' ').toLowerCase().includes(q));
  $('#app').innerHTML=`<h1>Employees &amp; Interns</h1><p class="sub">Profiles, login credentials and biometric enrollment.</p>
  <div class="row"><div><input id="q" placeholder="Search name, username, position…" value="${H(ui.q)}"></div><button class="p" id="add">+ Add person</button></div>
- <div class="card tw">${list.length?`<table><tr><th>Person</th><th>Type / Position</th><th>Username</th><th>Contact</th><th>Biometrics</th><th></th></tr>${list.map(e=>`<tr><td>${avatar(e)} <b>${H(e.name)}</b><br><small style="color:var(--mut)">DOB ${H(e.dob||'—')}</small></td><td><span class="pill pr">${H(e.type)}</span> ${H(e.pos)}</td><td>${H(e.user)}</td><td>${H(e.phone)}<br><small style="color:var(--mut)">${H(e.email)}</small></td><td>${bioPills(e)}</td><td><button class="s" data-e="${e.id}">Edit</button></td></tr>`).join('')}</table>`:'<div class="empty">No matching people.</div>'}</div>`;
+ <div class="card tw">${list.length?`<table><tr><th>Person</th><th>Type / Position</th><th>Username</th><th>Contact</th><th>Biometrics</th><th></th></tr>${list.map(e=>`<tr><td>${avatar(e)} <b>${H(e.name)}</b><br><small style="color:var(--mut)">DOB ${H(e.dob||'—')} · Joined ${H(e.join||'—')}</small></td><td><span class="pill pr">${H(e.type)}</span> ${H(e.pos)}</td><td>${H(e.user)}</td><td>${H(e.phone)}<br><small style="color:var(--mut)">${H(e.email)}</small></td><td>${bioPills(e)}</td><td><button class="s" data-e="${e.id}">Edit</button></td></tr>`).join('')}</table>`:'<div class="empty">No matching people.</div>'}</div>`;
  $('#q').oninput=e=>{ui.q=e.target.value;const p=e.target.selectionStart;employees();const n=$('#q');n.focus();n.setSelectionRange(p,p)};
  $('#add').onclick=()=>empForm();document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>empForm(b.dataset.e))}
 function empForm(id){
@@ -11,6 +11,7 @@ function empForm(id){
  <div style="grid-column:1/-1"><label>Photo</label><span id="pv">${photo?`<img class="av" style="width:64px;height:64px" src="${photo}">`:''}</span> <input type="file" id="ph" accept="image/*" style="margin-top:6px"></div>
  <div><label>Full name</label><input name="name" required value="${H(e.name)}"></div>
  <div><label>Date of birth</label><input type="date" name="dob" value="${H(e.dob)}"></div>
+ <div><label>Joining date</label><input type="date" name="join" value="${H(e.join)}"></div>
  <div><label>Type</label><select name="type">${['Employee','Intern'].map(t=>`<option ${e.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
  <div><label>Position</label><input name="pos" value="${H(e.pos)}" placeholder="e.g. Web Developer"></div>
  <div><label>Email</label><input type="email" name="email" value="${H(e.email)}"></div>
@@ -24,7 +25,7 @@ function empForm(id){
  if(id)$('#del').onclick=()=>{if(confirm('Delete this person and their records?')){S.emps=S.emps.filter(x=>x.id!==id);Object.keys(S.att).forEach(k=>k.startsWith(id+'|')&&delete S.att[k]);S.pay=S.pay.filter(p=>p.empId!==id);save();close();render()}};
  $('#f').onsubmit=async ev=>{ev.preventDefault();const f=new FormData(ev.target),o=id?e:{id:uid()};
   const user=f.get('user').trim();if(S.emps.some(x=>x.user===user&&x.id!==o.id))return alert('That username is already taken.');
-  Object.assign(o,{name:f.get('name').trim(),dob:f.get('dob'),type:f.get('type'),pos:f.get('pos'),email:f.get('email'),phone:f.get('phone'),user,photo,bio:Object.fromEntries(BIO.map(b=>[b,f.has('b_'+b)]))});
+  Object.assign(o,{name:f.get('name').trim(),dob:f.get('dob'),join:f.get('join'),type:f.get('type'),pos:f.get('pos'),email:f.get('email'),phone:f.get('phone'),user,photo,bio:Object.fromEntries(BIO.map(b=>[b,f.has('b_'+b)]))});
   if(f.get('pass'))o.pass=await sha(f.get('pass'));
   if(!id)S.emps.push(o);save();close();render();
   if(f.get('pass')&&!id)alert('Saved. Share these credentials with the person:\nUsername: '+user+'\nPassword: '+f.get('pass')+'\n(Passwords are stored hashed and cannot be viewed again.)')}}

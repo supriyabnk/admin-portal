@@ -11,7 +11,7 @@ function attCal(){
  for(let d=1;d<=n;d++){const ds=ui.month+'-'+String(d).padStart(2,'0'),i=dayInfo(ui.emp,ds),r=i.r;
   cells+=`<div class="day ${i.k}" data-d="${ds}"><b>${d}</b><br>${i.k==='present'?`${H(r.in)}–${H(r.out||'…')}<br>${H(r.method||'')}`:H(i.t)}</div>`}
  $('#tb').innerHTML=`<div class="card"><div class="row"><div><label>Person</label><select id="se">${empOpts(ui.emp)}</select></div><div><label>Month</label><input type="month" id="sm" value="${ui.month}"></div></div>
- <div class="leg" style="margin-bottom:10px"><span><i style="background:var(--ok)"></i>Present ${st.present}</span><span><i style="background:var(--warn)"></i>Leave ${st.leave}</span><span><i style="background:var(--hol)"></i>Holiday ${st.holiday}</span><span><i style="background:var(--bad)"></i>Absent ${st.absent}</span><span><i style="background:var(--line)"></i>Weekly off (Sat)</span></div>
+ <div class="leg" style="margin-bottom:10px"><span><i style="background:var(--ok)"></i>Present ${st.present}</span><span><i style="background:var(--warn)"></i>Leave ${st.leave}</span><span><i style="background:var(--hol)"></i>Holiday ${st.holiday}</span><span><i style="background:var(--bad)"></i>Absent ${st.absent}</span><span><i style="background:var(--line)"></i>Weekly off (Sat & Sun)</span><span><i style="background:var(--wk)"></i>Not joined</span></div>
  <div class="cal">${cells}</div><p class="sub" style="margin-top:10px">Click any day to register or edit.</p></div>`;
  $('#se').onchange=e=>{ui.emp=e.target.value;attendance()};$('#sm').onchange=e=>{ui.month=e.target.value||ui.month;attendance()};
  document.querySelectorAll('.day[data-d]').forEach(c=>c.onclick=()=>dayForm(ui.emp,c.dataset.d))}
@@ -20,6 +20,7 @@ function attDay(){
  $('#tb').innerHTML=`<div class="card"><div class="row"><div><label>Date</label><input type="date" id="sd" value="${ui.date}"></div></div><div class="tw"><table><tr><th>Person</th><th>Status</th><th>Entry</th><th>Exit</th><th>Method</th><th>Biometric time</th><th>Reason</th><th></th></tr>${rows}</table></div></div>`;
  $('#sd').onchange=e=>{ui.date=e.target.value||today;attendance()};document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>dayForm(b.dataset.e,ui.date))}
 function dayForm(id,ds){
+ if(isNJ(id,ds))return alert('Not joined yet. Joining date: '+emp(id).join+'.');
  const e=emp(id),r=S.att[id+'|'+ds]||{},st=r.status||(r.in?'present':'');
  open(`<h2 style="margin-top:0">${H(e.name)}<br><small style="font-weight:400;color:var(--mut)">${new Date(ds+'T00:00').toDateString()}</small></h2>${S.hol[ds]?`<p><span class="pill hl">Company holiday: ${H(S.hol[ds])}</span></p>`:''}
  <form id="f" class="grid g2"><div style="grid-column:1/-1"><label>Status</label><select name="status" id="ss"><option value="present" ${st==='present'?'selected':''}>Present</option><option value="leave" ${st==='leave'?'selected':''}>On leave</option><option value="absent" ${st==='absent'?'selected':''}>Absent</option><option value="" ${st===''?'selected':''}>Not recorded</option></select></div>
