@@ -1,0 +1,13 @@
+function notices(){const pend=S.leaves.filter(l=>l.status==='Pending'),sent=[...S.notes].sort((a,b)=>b.date.localeCompare(a.date));
+ $('#app').innerHTML=`<h1>Notices &amp; Leaves</h1><p class="sub">Send notifications to employees and review leave requests.</p>
+ <div class="card"><b>Pending leave requests (${pend.length})</b><div class="tw">${pend.length?`<table>${pend.map(l=>`<tr><td>${H(emp(l.empId)?.name||'—')}</td><td>${l.from} → ${l.to}</td><td>${H(l.reason)}</td><td><button class="s p" data-a="${l.id}">Approve</button> <button class="s d" data-r="${l.id}">Reject</button></td></tr>`).join('')}</table>`:'<div class="empty">No pending requests.</div>'}</div></div>
+ <form id="nf" class="card grid g2"><b style="grid-column:1/-1">Send notification</b><div><label>To</label><select name="to"><option value="all">Everyone</option>${empOpts('')}</select></div><div><label>Title</label><input name="t" required></div><div style="grid-column:1/-1"><label>Message</label><textarea name="b" rows="3" required></textarea></div><div style="grid-column:1/-1"><button class="p">Send</button></div></form>
+ <div class="card tw"><b>Sent notifications</b>${sent.length?`<table>${sent.map(n=>`<tr><td>${new Date(n.date).toLocaleString()}</td><td>${n.to==='all'?'Everyone':H(emp(n.to)?.name||'—')}</td><td><b>${H(n.title)}</b><br>${H(n.body)}</td><td><span class="pill pr">Read by ${Object.keys(n.read||{}).length}</span></td><td><button class="s d" data-x="${n.id}">Delete</button></td></tr>`).join('')}</table>`:'<div class="empty">Nothing sent yet.</div>'}</div>`;
+ const tell=(l,ok)=>S.notes.push({id:uid(),to:l.empId,title:'Leave '+(ok?'approved':'rejected'),body:`Your leave request for ${l.from} to ${l.to} was ${ok?'approved':'rejected'}.`,date:new Date().toISOString(),from:'Manager',read:{}});
+ document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const l=S.leaves.find(x=>x.id===b.dataset.a);l.status='Approved';
+  for(let d=new Date(l.from+'T00:00');iso(d)<=l.to;d.setDate(d.getDate()+1)){const ds=iso(d);if(!S.hol[ds]&&!isWk(ds))S.att[l.empId+'|'+ds]={status:'leave',in:'',out:'',method:'',bioTime:'',reason:l.reason}}
+  tell(l,true);save();notices()});
+ document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const l=S.leaves.find(x=>x.id===b.dataset.r);l.status='Rejected';tell(l,false);save();notices()});
+ document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{S.notes=S.notes.filter(n=>n.id!==b.dataset.x);save();notices()});
+ $('#nf').onsubmit=ev=>{ev.preventDefault();const f=new FormData(ev.target);S.notes.push({id:uid(),to:f.get('to'),title:f.get('t'),body:f.get('b'),date:new Date().toISOString(),from:'Manager',read:{}});save();notices()}}
+window.__page=notices;notices();
