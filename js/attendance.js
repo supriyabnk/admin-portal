@@ -9,7 +9,7 @@ function attCal(){
  const[y,m]=ui.month.split('-').map(Number),first=new Date(y,m-1,1).getDay(),n=new Date(y,m,0).getDate(),st=stat(ui.emp,ui.month);
  let cells='<div class="h">Sun</div><div class="h">Mon</div><div class="h">Tue</div><div class="h">Wed</div><div class="h">Thu</div><div class="h">Fri</div><div class="h">Sat</div>'+'<div class="day blank"></div>'.repeat(first);
  for(let d=1;d<=n;d++){const ds=ui.month+'-'+String(d).padStart(2,'0'),i=dayInfo(ui.emp,ds),r=i.r;
-  cells+=`<div class="day ${i.k}" data-d="${ds}"><b>${d}</b><br>${i.k==='present'?`${H(r.in)}–${H(r.out||'…')}<br>${H(r.method||'')}`:H(i.t)}</div>`}
+  cells+=`<div class="day ${i.k}" data-d="${ds}"><b>${d}</b><br>${i.k==='present'?`<span class="tm">${H(r.in)}<span class="o">–${H(r.out||'…')}</span></span><br><span class="mt">${H(r.method||'')}</span>`:`<span class="ht">${H(i.t)}</span>`}</div>`}
  $('#tb').innerHTML=`<div class="card"><div class="row"><div><label>Person</label><select id="se">${empOpts(ui.emp)}</select></div><div><label>Month</label><input type="month" id="sm" value="${ui.month}"></div></div>
  <div class="leg" style="margin-bottom:10px"><span><i style="background:var(--ok)"></i>Present ${st.present}</span><span><i style="background:var(--warn)"></i>Leave ${st.leave}</span><span><i style="background:var(--hol)"></i>Holiday ${st.holiday}</span><span><i style="background:var(--bad)"></i>Absent ${st.absent}</span><span><i style="background:var(--line)"></i>Weekly off (Sat & Sun)</span><span><i style="background:var(--wk)"></i>Not joined</span></div>
  <div class="cal">${cells}</div><p class="sub" style="margin-top:10px">Click any day to register or edit.</p></div>`;
